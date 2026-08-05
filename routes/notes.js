@@ -1,28 +1,39 @@
 var express = require('express');
 var router = express.Router();
+const cors = require('cors');
+const path = require('path');
 
-// レスポンスのデータ（ノート全件）
-const responseObjectDataAll = {
-  textObject1: {
-    id: 1,
-    title: 'ノート１のタイトルです',
-    subTitle: 'ノート１のサブタイトルです',
-    bodyText: 'ノート１の本文です'
-  },
-  textObject2: {
-    id: 2,
-    title: 'ノート２のタイトルです',
-    subTitle: 'ノート２のサブタイトルです',
-    bodyText: 'ノート２の本文です'
+require('dotenv').config({
+  path: path.resolve(__dirname, '../.env')
+});
+
+const { MongoClient } = require('mongodb');
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  throw new Error('MONGODB_URI が読み込めませんでした');
+}
+
+const client = new MongoClient(uri);
+
+router.use(cors());
+
+router.get('/', async function (req, res) {
+  try {
+    await client.connect();
+
+    // 日本語の「メモ」ではなく、実際の名前は notes
+    const database = client.db('notes');
+    const notes = database.collection('notes');
+
+    const query = { id: 1 };
+    const note = await notes.findOne(query);
+
+    res.json(note);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(error.message);
   }
-};
-
-/**
- * メモを全件取得するAPI
- */
-router.get('/', function (req, res, next) {
-  // 全件取得して返す
-  res.json(responseObjectDataAll);
 });
 
 module.exports = router;
