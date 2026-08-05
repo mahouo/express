@@ -9,7 +9,9 @@ var usersRouter = require('./routes/users');
 var helloRouter = require('./routes/hello');
 var notesRouter = require('./routes/notes');
 var dogRouter = require('./routes/dog');
+var cors = require('cors');
 var app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
